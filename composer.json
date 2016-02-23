@@ -1,0 +1,16 @@
+{
+    "name": "koriym/dev-pdo-statement",
+    "description":"A PDOStatement for develop",
+    "keywords":[
+        "pdo"
+    ],
+    "license": "MIT",
+    "autoload":{
+        "psr-4":{
+            "Koriym\\DevPdoStatement\\": "src/"
+        }
+    },
+    "require": {
+        "psr/log": "^1.0"
+    }
+}
