@@ -1,4 +1,4 @@
-# A PdoStatement for Devloper
+# A PdoStatement for Developers
 
 `DevPdoStatement` log PDO query excution time and final SQL query, with parameter values interpolated into it from prepared statement.
 
