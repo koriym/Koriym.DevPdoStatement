@@ -1,16 +1,14 @@
 # A PdoStatement for Devloper
 
-** WIP **
-
 `DevPdoStatement` log PDO query excution time and final SQL query, with parameter values interpolated into it from prepared statement.
 
 It can  also store explain data detail.
  
 ## Usage
 
-Set `DevPdoStatement` class to target `PDO`. Then your `$pdo` starts to return `DevPdoStatement` instead of original `PDOStatement`.
+Set `DevPdoStatement` class to target `$pdo`. Then it starts to return `DevPdoStatement` instead of original `PDOStatement` for profiling.
 
-```
+```php
 use Koriym\DevPdoStatement\DevPdoStatement;
 use Koriym\DevPdoStatement\Logger;
 
@@ -29,7 +27,7 @@ Excution log:
 
 Expalin log in explain log db:
 
-```
+```php
 //Array
 //(
 //    [0] => Array
@@ -44,7 +42,7 @@ Expalin log in explain log db:
 
 You can have your own logger.
 
-```
+```php
 use Koriym\DevPdoStatement\LoggerInterface;
 
 class MyPsr3Logger implements LoggerInterface
