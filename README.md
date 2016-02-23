@@ -2,9 +2,9 @@
 
 ** WIP **
 
-With given PSR3 logger, `DevPdoStatement` log PDO query excution time and final SQL query, with parameter values interpolated into it from prepared statement.
+`DevPdoStatement` log PDO query excution time and final SQL query, with parameter values interpolated into it from prepared statement.
 
-It also store explain data detail into given log database.
+It can  also store explain data detail.
  
 ## Usage
 
@@ -40,7 +40,21 @@ Expalin log in explain log db:
 //    {
 ```
 
+## Custom Logger
 
+You can have your own logger.
+
+```
+use Koriym\DevPdoStatement\LoggerInterface;
+
+class MyPsr3Logger implements LoggerInterface
+{
+    public function logQuery($query, $time, array $explain)
+    {
+        // log with PSR3 logger
+    }
+}
+```
 # Demo
 
 ```
