@@ -9,8 +9,5 @@
         "psr-4":{
             "Koriym\\DevPdoStatement\\": "src/"
         }
-    },
-    "require": {
-        "psr/log": "^1.0"
     }
 }

@@ -12,11 +12,11 @@ Set `DevPdoStatement` class to target `PDO`. Then your `$pdo` starts to return `
 
 ```
 use Koriym\DevPdoStatement\DevPdoStatement;
-use Koriym\DevPdoStatement\Logger as DbLogger;
+use Koriym\DevPdoStatement\Logger;
 
 $pdo->setAttribute(
     \PDO::ATTR_STATEMENT_CLASS,
-    [DevPdoStatement::class, [$pdo, new DbLogger, $logDb]]
+    [DevPdoStatement::class, [$pdo, new Logger]]
 );
 ```
 

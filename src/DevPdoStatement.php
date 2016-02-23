@@ -6,8 +6,6 @@
  */
 namespace Koriym\DevPdoStatement;
 
-use Psr\Log\LoggerInterface;
-
 final class DevPdoStatement extends \PdoStatement
 {
     /**
@@ -39,11 +37,10 @@ final class DevPdoStatement extends \PdoStatement
      */
     private $logDb;
 
-    protected function __construct(\PDO $db, LoggerInterface $logger, $logDb)
+    protected function __construct(\PDO $db, LoggerInterface $logger)
     {
         $this->pdo = $db;
         $this->logger = $logger;
-        $this->logDb = $logDb;
     }
 
     public function bindValue($parameter, $value, $dataType = \PDO::PARAM_STR)
@@ -64,8 +61,8 @@ final class DevPdoStatement extends \PdoStatement
         parent::execute($bountInputParameters);
         $time = microtime(true) - $start;
         $this->interpolateQuery = $this->interpolateQuery($this->queryString, $this->params);
-        $this->logger->info("time: {$time} query: {$this->interpolateQuery}");
-        $this->logExplain($this->interpolateQuery, $time);
+        $explain = $this->getExplain($this->interpolateQuery);
+        $this->logger->logQuery($this->interpolateQuery, $time, $explain);
     }
 
     /**
@@ -105,27 +102,19 @@ final class DevPdoStatement extends \PdoStatement
 
     /**
      * @param string $interpolateQuery
-     * @param string $time
+     *
+     * @return array
      */
-    private function logExplain($interpolateQuery, $time)
+    private function getExplain($interpolateQuery)
     {
         $explainSql = sprintf('explain %s', $interpolateQuery);
         try {
             $sth = $this->pdo->query($explainSql);
         } catch (\PDOException $e) {
-            return;
+            return [];
         }
-        $expalin = $sth->fetchAll(\PDO::FETCH_ASSOC);
-        $this->logDb->beginTransaction();
-        try {
-            $sth = $this->logDb->prepare('insert into explain (time, query, explain) values (:time, :query, :explain)');
-            $sth->bindValue(':time', $time);
-            $sth->bindValue(':query', $this->queryString);
-            $sth->bindValue(':explain', (string) json_encode($expalin, JSON_PRETTY_PRINT));
-            $sth->execute();
-            $this->logDb->commit();
-        } catch (\PDOException $e) {
-            $this->logDb->rollBack();
-        }
+        $explain = $sth->fetchAll(\PDO::FETCH_ASSOC);
+
+        return $explain;
     }
 }

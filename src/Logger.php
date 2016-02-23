@@ -6,19 +6,17 @@
  */
 namespace Koriym\DevPdoStatement;
 
-use Psr\Log\AbstractLogger;
-
-class Logger extends AbstractLogger
+class Logger implements LoggerInterface
 {
     /**
-     * Logs with an arbitrary level.
-     *
-     * @param mixed  $level
-     * @param string $message
-     * @param array  $context
+     * @var array
      */
-    public function log($level, $message, array $context = [])
+    public $explain;
+
+    public function logQuery($query, $time, array $explain)
     {
-        error_log($message);
+        $log = sprintf('time:%s query: %s', $query, $time);
+        error_log($log);
+        $this->explain = $explain;
     }
 }
