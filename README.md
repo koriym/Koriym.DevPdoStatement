@@ -1,5 +1,7 @@
 # A PdoStatement for Devloper
 
+** WIP **
+
 With given PSR3 logger, `DevPdoStatement` log PDO query excution time and final SQL query, with parameter values interpolated into it from prepared statement.
 
 It also store explain data detail into given log database.
