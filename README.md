@@ -23,9 +23,8 @@ $pdo->setAttribute(\PDO::ATTR_STATEMENT_CLASS, [DevPdoStatement::class, [$pdo, n
 Then `$pdo` start to log each query as following.
 
 ```
-time:INSERT INTO user(id, name) VALUES (98, 'koriym98') query: 0.00022602081298828
-time:INSERT INTO user(id, name) VALUES (99, 'koriym99') query: 0.00022697448730469
-time:select id, name from user where id > 80 query: 0.00020599365234375
+time:0.00035190582275391 query: INSERT INTO user(id, name) VALUES (99, 'koriym99')
+time:0.00020503997802734 query: SELECT id, name FROM user where id > 80
 warnings:[
     {
         "Level": "Note",

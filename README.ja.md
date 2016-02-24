@@ -12,7 +12,7 @@
 ## インストール
 
 
-`$pdo`に`DevPdoStatement`クラスをセットして[PDO](http://php.net/manual/ja/intro.pdo.php)のプリペアドステートメントクラス`PDOStatement`を置き換え、ログ機能を有効にします。
+`$pdo`に`DevPdoStatement`クラスをセットして[PDO](http://php.net/manual/ja/intro.pdo.php)のプリペアドステートメントクラス`PDOStatement`を置き換えログ機能を有効にします。
 
 ```php
 use Koriym\DevPdoStatement\DevPdoStatement;
@@ -21,12 +21,11 @@ use Koriym\DevPdoStatement\Logger;
 $pdo->setAttribute(\PDO::ATTR_STATEMENT_CLASS, [DevPdoStatement::class, [$pdo, new Logger]]);
 ```
 
-これ以降プリペアードステートメントのクエリー行うと以下のようにログされるようになります。
+これ以降プリペアードステートメントクエリー行うと以下のようにログされます。
 
 ```
-time:INSERT INTO user(id, name) VALUES (98, 'koriym98') query: 0.00022602081298828
-time:INSERT INTO user(id, name) VALUES (99, 'koriym99') query: 0.00022697448730469
-time:select id, name from user where id > 80 query: 0.00020599365234375
+time:0.00035190582275391 query: INSERT INTO user(id, name) VALUES (99, 'koriym99')
+time:0.00020503997802734 query: SELECT id, name FROM user where id > 80
 warnings:[
     {
         "Level": "Note",
@@ -55,7 +54,7 @@ explain :[
 
 ## カスタムログ
 
-独自の条件やログ実装を持つロガーを渡す事ができます。
+独自のロガーを実装して実行時間や`$explain`、`$warnings`で異常が検知されたクエリーだけを記録することが出来ます。
 
 ```php
 use Koriym\DevPdoStatement\LoggerInterface;
@@ -72,7 +71,6 @@ class MyPsr3Logger implements LoggerInterface
 }
 ```
 
-一定時間以上の時間がかかったクエリーや`$explain`、`$warnings`で異常があったクエリーの記録や通知が可能です。
 
 ```php
 $pdo->setAttribute(\PDO::ATTR_STATEMENT_CLASS, [DevPdoStatement::class, [$pdo, new MyPsr3Logger]]);
