@@ -31,5 +31,9 @@ class Logger implements LoggerInterface
         error_log($log);
         $this->explain = $explain;
         $this->warnings = $warnings;
+        if ($warnings) {
+            error_log('warnings:' . (string) json_encode($warnings, JSON_PRETTY_PRINT));
+            error_log('explain :' . (string) json_encode($explain, JSON_PRETTY_PRINT));
+        }
     }
 }

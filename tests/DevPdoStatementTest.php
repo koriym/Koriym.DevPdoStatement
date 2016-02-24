@@ -22,11 +22,9 @@ class DevPdoStatementTest extends \PHPUnit_Framework_TestCase
     protected function setUp()
     {
         parent::setUp();
-        $this->logDb = new \PDO('sqlite::memory:');
-        $this->logDb->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
         $this->pdo = new \PDO('mysql:host=localhost', 'root');
         $this->logger = new Logger;
-        $this->pdo->setAttribute(\PDO::ATTR_STATEMENT_CLASS, [DevPdoStatement::class, [$this->pdo, $this->logger, $this->logDb]]);
+        $this->pdo->setAttribute(\PDO::ATTR_STATEMENT_CLASS, [DevPdoStatement::class, [$this->pdo, $this->logger]]);
         $this->pdo->exec('DROP DATABASE IF EXISTS tmp;');
         $this->pdo->exec('CREATE DATABASE IF NOT EXISTS tmp; use tmp;');
         $this->pdo->exec('CREATE TABLE IF NOT EXISTS user(id integer primary key, name text)');
@@ -74,6 +72,6 @@ class DevPdoStatementTest extends \PHPUnit_Framework_TestCase
         $this->assertNotSame([], $warnings[0]);
         $this->assertArrayHasKey('Level', $warnings[0]);
         $this->assertArrayHasKey('Code', $warnings[0]);
-        $this->assertArrayHasKey('Message', $warnings[0]);
+        $this->assertArrayHasKey('Message', $warnings[0]); // /* select#1 */ select NULL AS `name` from `tmp`.`user` where multiple equal(1, NULL)
     }
 }
