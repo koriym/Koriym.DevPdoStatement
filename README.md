@@ -67,8 +67,7 @@ class MyPsr3Logger implements LoggerInterface
      */
     public function logQuery($query, $time, array $explain, array $warnings)
     {
-        if ($time > the
-        // log by your costum condition
+        // log with your costum condition
     }
 }
 ```
