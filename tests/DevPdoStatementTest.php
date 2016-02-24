@@ -60,5 +60,20 @@ class DevPdoStatementTest extends \PHPUnit_Framework_TestCase
         $this->logger;
         $expected = 'SIMPLE';
         $this->assertSame($this->logger->explain[0]['select_type'], $expected);
+
+        return $this->logger->warnings;
+    }
+
+    /**
+     * @param array $warnings
+     *
+     * @depends testExplain
+     */
+    public function testWarnings(array $warnings)
+    {
+        $this->assertNotSame([], $warnings[0]);
+        $this->assertArrayHasKey('Level', $warnings[0]);
+        $this->assertArrayHasKey('Code', $warnings[0]);
+        $this->assertArrayHasKey('Message', $warnings[0]);
     }
 }
