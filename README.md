@@ -4,7 +4,7 @@
 
 [[Japanese](README.ja.md)]
 
-[koriym/dev-pdo-statement](https://packagist.org/packages/koriym/dev-pdo-statement) log following information on each SQL query.
+[koriym/dev-pdo-statement](https://packagist.org/packages/koriym/dev-pdo-statement) log following information to help your sql inspection.
 
  * Query excution time.
  * Final SQL query with parameter values interpolated into it from prepared statement.
@@ -22,7 +22,7 @@ use Koriym\DevPdoStatement\Logger;
 $pdo->setAttribute(\PDO::ATTR_STATEMENT_CLASS, [DevPdoStatement::class, [$pdo, new Logger]]);
 ```
 
-Then `$pdo` start to log each query as following.
+Then `$pdo` start to log as following on each query.
 
 ```
 time:0.00035190582275391 query: INSERT INTO user(id, name) VALUES (99, 'koriym99')
@@ -55,7 +55,7 @@ explain :[
 
 ## Custom Log
 
-You can implement custom logger in certain condition like over excution time or log with PS3 logger.
+You can implement custom condition for logging or choose your favorite logger.
 
 ```php
 use Koriym\DevPdoStatement\LoggerInterface;
@@ -67,6 +67,7 @@ class MyPsr3Logger implements LoggerInterface
      */
     public function logQuery($query, $time, array $explain, array $warnings)
     {
+        if ($time > the
         // log by your costum condition
     }
 }
