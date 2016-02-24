@@ -27,8 +27,8 @@ class DevPdoStatementTest extends \PHPUnit_Framework_TestCase
         $this->pdo = new \PDO('mysql:host=localhost', 'root');
         $this->logger = new Logger;
         $this->pdo->setAttribute(\PDO::ATTR_STATEMENT_CLASS, [DevPdoStatement::class, [$this->pdo, $this->logger, $this->logDb]]);
-        $this->pdo->exec('DROP DATABASE IF EXISTS dev_pdo_test;');
-        $this->pdo->exec('CREATE DATABASE IF NOT EXISTS dev_pdo_test; use dev_pdo_test;');
+        $this->pdo->exec('DROP DATABASE IF EXISTS tmp;');
+        $this->pdo->exec('CREATE DATABASE IF NOT EXISTS tmp; use tmp;');
         $this->pdo->exec('CREATE TABLE IF NOT EXISTS user(id integer primary key, name text)');
         $this->pdo->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
     }
