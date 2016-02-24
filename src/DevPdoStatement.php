@@ -57,7 +57,7 @@ final class DevPdoStatement extends \PdoStatement
      */
     public function bindParam($paramno, &$param, $type = null, $maxlen = null, $driverdata = null)
     {
-        $this->params[$paramno] = $param;
+        $this->params[$paramno] = &$param;
         parent::bindParam($paramno, $param, $type = null, $maxlen = null, $driverdata = null);
     }
 

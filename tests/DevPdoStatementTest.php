@@ -52,6 +52,18 @@ class DevPdoStatementTest extends \PHPUnit_Framework_TestCase
         $this->assertSame("INSERT INTO user(id, name) VALUES (1, 'koriym')", $sth->interpolateQuery);
     }
 
+    public function testBindParam()
+    {
+        $sth = $this->pdo->prepare('INSERT INTO user(id, name) VALUES (:id, :name)');
+        $id = $name  = '';
+        $sth->bindParam(':id', $id, \PDO::PARAM_STR);
+        $sth->bindParam(':name', $name, \PDO::PARAM_STR);
+        $id = 1;
+        $name = 'koriym';
+        $sth->execute();
+        $this->assertSame("INSERT INTO user(id, name) VALUES (1, 'koriym')", $sth->interpolateQuery);
+    }
+
     public function testExpalin()
     {
         $sth = $this->pdo->prepare('INSERT INTO user(id, name) VALUES (:id, :name)');
