@@ -43,26 +43,35 @@ final class DevPdoStatement extends \PdoStatement
         $this->logger = $logger;
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function bindValue($parameter, $value, $dataType = \PDO::PARAM_STR)
     {
         $this->params[$parameter] = $value;
         parent::bindValue($parameter, $value, $dataType);
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function bindParam($paramno, &$param, $type = null, $maxlen = null, $driverdata = null)
     {
         $this->params[$paramno] = $param;
         parent::bindParam($paramno, $param, $type = null, $maxlen = null, $driverdata = null);
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function execute($bountInputParameters = null)
     {
         $start = microtime(true);
         parent::execute($bountInputParameters);
         $time = microtime(true) - $start;
         $this->interpolateQuery = $this->interpolateQuery($this->queryString, $this->params);
-        $explain = $this->getExplain($this->interpolateQuery);
-        $this->logger->logQuery($this->interpolateQuery, $time, $explain);
+        list($explain, $warnings) = $this->getExplain($this->interpolateQuery);
+        $this->logger->logQuery($this->interpolateQuery, $time, $explain, $warnings);
     }
 
     /**
@@ -107,14 +116,16 @@ final class DevPdoStatement extends \PdoStatement
      */
     private function getExplain($interpolateQuery)
     {
-        $explainSql = sprintf('explain %s', $interpolateQuery);
+        $explainSql = sprintf('EXPLAIN %s', $interpolateQuery);
         try {
             $sth = $this->pdo->query($explainSql);
+            $explain = $sth->fetchAll(\PDO::FETCH_ASSOC);
+            $sth = $this->pdo->query('SHOW WARNINGS');
+            $warnings = $sth->fetchAll(\PDO::FETCH_ASSOC);
         } catch (\PDOException $e) {
-            return [];
+            return [[], []];
         }
-        $explain = $sth->fetchAll(\PDO::FETCH_ASSOC);
 
-        return $explain;
+        return [$explain, $warnings];
     }
 }

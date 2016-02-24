@@ -8,5 +8,11 @@ namespace Koriym\DevPdoStatement;
 
 interface LoggerInterface
 {
-    public function logQuery($query, $time, array $explain);
+    /**
+     * @param string $query
+     * @param string $time
+     * @param array  $explain
+     * @param array  $warnings
+     */
+    public function logQuery($query, $time, array $explain, array $warnings);
 }
