@@ -1,5 +1,7 @@
 # A PdoStatement for Developers
 
+[[Japanese](README.ja.md)]
+
 [koriym/dev-pdo-statement](https://packagist.org/packages/koriym/dev-pdo-statement) log following information on each SQL query.
 
  * Query excution time.
