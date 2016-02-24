@@ -1,5 +1,7 @@
 # A PdoStatement for Developers
 
+[![Build Status](https://travis-ci.org/koriym/Koriym.DevPdoStatement.svg?branch=1.x)](https://travis-ci.org/koriym/Koriym.DevPdoStatement)
+
 [[Japanese](README.ja.md)]
 
 [koriym/dev-pdo-statement](https://packagist.org/packages/koriym/dev-pdo-statement) log following information on each SQL query.

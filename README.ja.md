@@ -1,5 +1,7 @@
 # A PdoStatement for Developers
 
+[![Build Status](https://travis-ci.org/koriym/Koriym.DevPdoStatement.svg?branch=1.x)](https://travis-ci.org/koriym/Koriym.DevPdoStatement)
+
 [[English](README.md)]
 
 [koriym/dev-pdo-statement](https://packagist.org/packages/koriym/dev-pdo-statement) はSQLクエリーやデータベース運用を改善するために以下の情報を記録します。
