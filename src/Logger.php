@@ -27,7 +27,7 @@ class Logger implements LoggerInterface
      */
     public function logQuery($query, $time, array $explain, array $warnings)
     {
-        $log = sprintf('time:%s query: %s', $query, $time);
+        $log = sprintf('time:%s query: %s', $time, $query);
         error_log($log);
         $this->explain = $explain;
         $this->warnings = $warnings;
