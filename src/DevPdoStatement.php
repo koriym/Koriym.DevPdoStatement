@@ -121,7 +121,7 @@ final class DevPdoStatement extends \PdoStatement
             $sth = $this->pdo->query($explainSql);
             $explain = $sth->fetchAll(\PDO::FETCH_ASSOC);
             $sth = $this->pdo->query('SHOW WARNINGS');
-            $warnings = $sth->fetchAll(\PDO::FETCH_ASSOC);
+            $sth instanceof \PDOStatement ? $warnings = $sth->fetchAll(\PDO::FETCH_ASSOC) : $warnings = [];
         } catch (\PDOException $e) {
             return [[], []];
         }
