@@ -68,7 +68,7 @@ class MyPsr3Logger implements LoggerInterface
      */
     public function logQuery($query, $time, array $explain, array $warnings)
     {
-        // log by your costum condition
+        // 特定条件でログまたは例外を投げる
     }
 }
 ```
