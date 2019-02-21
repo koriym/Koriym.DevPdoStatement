@@ -9,3 +9,4 @@ nbproject
 cache.properties
 build
 vendor/
+/composer.lock
