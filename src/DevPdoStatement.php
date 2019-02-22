@@ -55,10 +55,10 @@ final class DevPdoStatement extends \PdoStatement
     /**
      * {@inheritdoc}
      */
-    public function bindParam($paramno, &$param, $type = null, $maxlen = null, $driverdata = null)
+    public function bindParam($paramno, &$param, $dataType = \PDO::PARAM_STR, $length = null, $driverOptions = null)
     {
         $this->params[$paramno] = &$param;
-        parent::bindParam($paramno, $param, $type = null, $maxlen = null, $driverdata = null);
+        parent::bindParam($paramno, $param, $dataType, (int) $length, $driverOptions);
     }
 
     /**
