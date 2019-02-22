@@ -1,8 +1,12 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Koriym\DevPdoStatement;
 
-class DevPdoStatementTest extends \PHPUnit_Framework_TestCase
+use PHPUnit\Framework\TestCase;
+
+class DevPdoStatementTest extends TestCase
 {
     /**
      * @var \PDO

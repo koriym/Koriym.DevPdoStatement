@@ -4,6 +4,8 @@
  *
  * @license http://opensource.org/licenses/MIT MIT
  */
+declare(strict_types=1);
+
 namespace Koriym\DevPdoStatement;
 
 interface LoggerInterface
