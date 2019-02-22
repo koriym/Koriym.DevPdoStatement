@@ -4,6 +4,8 @@
  *
  * @license http://opensource.org/licenses/MIT MIT
  */
+declare(strict_types=1);
+
 namespace Koriym\DevPdoStatement;
 
 final class DevPdoStatement extends \PdoStatement
@@ -32,11 +34,6 @@ final class DevPdoStatement extends \PdoStatement
      */
     private $logger;
 
-    /**
-     * @var
-     */
-    private $logDb;
-
     protected function __construct(\PDO $db, LoggerInterface $logger)
     {
         $this->pdo = $db;
@@ -55,10 +52,10 @@ final class DevPdoStatement extends \PdoStatement
     /**
      * {@inheritdoc}
      */
-    public function bindParam($paramno, &$param, $type = null, $maxlen = null, $driverdata = null)
+    public function bindParam($paramno, &$param, $dataType = \PDO::PARAM_STR, $length = null, $driverOptions = null)
     {
         $this->params[$paramno] = &$param;
-        parent::bindParam($paramno, $param, $type = null, $maxlen = null, $driverdata = null);
+        parent::bindParam($paramno, $param, $dataType, (int) $length, $driverOptions);
     }
 
     /**

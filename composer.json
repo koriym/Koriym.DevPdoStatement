@@ -9,5 +9,12 @@
         "psr-4":{
             "Koriym\\DevPdoStatement\\": "src/"
         }
+    },
+    "require" : {
+        "php": ">=7.1.0",
+        "ext-pdo": "*"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "~7.5"
     }
 }
