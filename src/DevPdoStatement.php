@@ -34,11 +34,6 @@ final class DevPdoStatement extends \PdoStatement
      */
     private $logger;
 
-    /**
-     * @var
-     */
-    private $logDb;
-
     protected function __construct(\PDO $db, LoggerInterface $logger)
     {
         $this->pdo = $db;
