@@ -69,7 +69,7 @@ class DevPdoStatementTest extends TestCase
         $this->assertSame("INSERT INTO user(id, name) VALUES (1, 'koriym')", $sth->interpolateQuery);
     }
 
-    public function testExpalin()
+    public function testExplain()
     {
         $sth = $this->pdo->prepare('INSERT INTO user(id, name) VALUES (:id, :name)');
         $sth->bindParam(':id', $id, \PDO::PARAM_INT);
