@@ -32,7 +32,7 @@ jobs:
           restore-keys: ${{ runner.os }}-composer-
 
       - name: Install dependencies
-        run: composer install --no-interaction --no-progress --prefer-dist
+        run: composer require bear/qatools --no-interaction --no-progress --prefer-dist
 
       - name: Run PHPStan
         run: ./vendor/bin/phpstan analyse -c phpstan.neon --no-progress --no-interaction --error-format=checkstyle | cs2pr
