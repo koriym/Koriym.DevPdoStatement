@@ -26,7 +26,7 @@ class DevPdoStatementTest extends TestCase
     protected function setUp():void
     {
         parent::setUp();
-        $this->pdo = new \PDO('mysql:host=127.0.0.1;dbname=tmp', 'root', '');
+        $this->pdo = new \PDO('mysql:host=127.0.0.1', 'root', '');
         $this->logger = new Logger;
         $this->pdo->exec('CREATE DATABASE IF NOT EXISTS tmp;');
         $this->pdo->exec('USE tmp;');
