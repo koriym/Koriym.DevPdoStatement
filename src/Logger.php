@@ -36,15 +36,12 @@ class Logger implements LoggerInterface
      */
     public function logQuery($query, $time, array $explain, array $warnings)
     {
-        $log = sprintf('time:%s query: %s', $time, $query);
-        error_log($log);
         $this->explain = $explain;
         $this->warnings = $warnings;
-        if (! $warnings) {
-            return;
-        }
-
-        error_log('warnings:' . (string) json_encode($warnings, JSON_PRETTY_PRINT));
-        error_log('explain :' . (string) json_encode($explain, JSON_PRETTY_PRINT));
+        error_log(sprintf("time:%.6f SQL: %s explain: %s",
+            (float) $time,
+            $query,
+            json_encode($explain)
+        ));
     }
 }
