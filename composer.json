@@ -10,6 +10,11 @@
             "Koriym\\DevPdoStatement\\": "src/"
         }
     },
+    "autoload-dev": {
+        "psr-4": {
+            "Koriym\\DevPdoStatement\\": "tests/"
+        }
+    },
     "require": {
         "php": ">=7.1.0",
         "ext-pdo": "*",
