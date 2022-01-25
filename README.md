@@ -1,6 +1,6 @@
 # A PdoStatement for Developers
 
-[![Build Status](https://travis-ci.org/koriym/Koriym.DevPdoStatement.svg?branch=1.x)](https://travis-ci.org/koriym/Koriym.DevPdoStatement)
+[![Continuous Integration](https://github.com/koriym/Koriym.DevPdoStatement/actions/workflows/continuous-integration.yml/badge.svg)](https://github.com/koriym/Koriym.DevPdoStatement/actions/workflows/continuous-integration.yml)
 
 [[Japanese](README.ja.md)]
 
