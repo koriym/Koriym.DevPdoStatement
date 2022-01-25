@@ -11,7 +11,6 @@ use ReturnTypeWillChange;
 
 use function implode;
 use function is_array;
-use function is_null;
 use function is_string;
 use function microtime;
 use function preg_replace;
@@ -22,7 +21,7 @@ final class DevPdoStatement extends PdoStatement
     /**
      * Bound parameters
      *
-     * @var array
+     * @var array<mixed>
      */
     private $params = [];
 
@@ -31,7 +30,7 @@ final class DevPdoStatement extends PdoStatement
      *
      * @var string
      */
-    public $interpolateQuery;
+    public $interpolateQuery = '';
 
     /** @var PDO */
     private $pdo;
@@ -47,36 +46,52 @@ final class DevPdoStatement extends PdoStatement
 
     /**
      * {@inheritdoc}
+     *
+     * @param int|string $parameter
+     * @param int|string $value
+     * @param int        $dataType
      */
     #[ReturnTypeWillChange]
     public function bindValue($parameter, $value, $dataType = PDO::PARAM_STR)
     {
         $this->params[$parameter] = $value;
-        parent::bindValue($parameter, $value, $dataType);
+
+        return parent::bindValue($parameter, $value, $dataType);
     }
 
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
+     *
+     * @param string|int $paramno
+     * @param mixed      $param
+     * @param int        $dataType
+     * @param int        $length
+     * @param mixed      $driverOptions
      */
     #[ReturnTypeWillChange]
     public function bindParam($paramno, &$param, $dataType = PDO::PARAM_STR, $length = null, $driverOptions = null)
     {
         $this->params[$paramno] = &$param;
-        parent::bindParam($paramno, $param, $dataType, (int) $length, $driverOptions);
+
+        return parent::bindParam($paramno, $param, $dataType, (int) $length, $driverOptions);
     }
 
     /**
      * {@inheritdoc}
+     *
+     * @param array<mixed> $bountInputParameters
      */
     #[ReturnTypeWillChange]
     public function execute($bountInputParameters = null)
     {
         $start = microtime(true);
-        parent::execute($bountInputParameters);
+        $result = parent::execute($bountInputParameters);
         $time = microtime(true) - $start;
         $this->interpolateQuery = $this->interpolateQuery($this->queryString, $this->params);
         [$explain, $warnings] = $this->getExplain($this->interpolateQuery);
-        $this->logger->logQuery($this->interpolateQuery, $time, $explain, $warnings);
+        $this->logger->logQuery($this->interpolateQuery, (string) $time, $explain, $warnings);
+
+        return $result;
     }
 
     /**
@@ -84,8 +99,8 @@ final class DevPdoStatement extends PdoStatement
      * parameter. Useful for debugging. Assumes anonymous parameters from
      * $params are are in the same order as specified in $query
      *
-     * @param string $query  The sql query with parameter placeholders
-     * @param array  $params The array of substitution parameters
+     * @param string       $query  The sql query with parameter placeholders
+     * @param array<mixed> $params The array of substitution parameters
      *
      * @return string The interpolated query
      *
@@ -107,7 +122,7 @@ final class DevPdoStatement extends PdoStatement
                 $values[$key] = "'" . implode("','", $value) . "'";
             }
 
-            if (! is_null($value)) {
+            if ($value !== null) {
                 continue;
             }
 
@@ -116,25 +131,38 @@ final class DevPdoStatement extends PdoStatement
 
         $query = preg_replace($keys, $values, $query, 1);
 
-        return $query;
+        return (string) $query;
     }
 
     /**
      * @param string $interpolateQuery
      *
-     * @return array
+     * @return array{0:array<int, array<string, mixed>>, 1:array<int, array<string, mixed>>}
      */
     private function getExplain($interpolateQuery)
     {
         $explainSql = sprintf('EXPLAIN %s', $interpolateQuery);
         try {
             $sth = $this->pdo->query($explainSql);
+            if ($sth === false) {
+                return [[], []];
+            }
+
             $explain = $sth->fetchAll(PDO::FETCH_ASSOC);
-            $sth = $this->pdo->query('SHOW WARNINGS');
-            $sth instanceof \PDOStatement ? $warnings = $sth->fetchAll(PDO::FETCH_ASSOC) : $warnings = [];
+            $warningSth = $this->pdo->query('SHOW WARNINGS');
+            if ($warningSth === false) {
+                return [[], []];
+            }
+
+            $warnings = $sth->fetchAll(PDO::FETCH_ASSOC);
         } catch (PDOException $e) {
             return [[], []];
         }
+
+        /** @var array<int, array<string, mixed>> $explain */
+        $explain = $explain ?: [];
+        /** @var array<int, array<string, mixed>> $warnings */
+        $warnings = $warnings ?: [];
 
         return [$explain, $warnings];
     }

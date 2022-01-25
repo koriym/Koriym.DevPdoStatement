@@ -25,7 +25,7 @@ class DevPdoStatementTest extends TestCase
         $this->logger = new Logger();
         $this->pdo->exec('CREATE DATABASE IF NOT EXISTS tmp;');
         $this->pdo->exec('USE tmp;');
-        $this->pdo->exec('CREATE TABLE user(id integer, name text)');
+        $this->pdo->exec('CREATE TABLE IF NOT EXISTS user(id integer, name text)');
         $this->pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
         $this->pdo->setAttribute(PDO::ATTR_STATEMENT_CLASS, [DevPdoStatement::class, [$this->pdo, $this->logger]]);
     }
@@ -64,6 +64,9 @@ class DevPdoStatementTest extends TestCase
         $this->assertSame("INSERT INTO user(id, name) VALUES (1, 'koriym')", $sth->interpolateQuery);
     }
 
+    /**
+     * @return array<mixed>
+     */
     public function testExplain()
     {
         $sth = $this->pdo->prepare('INSERT INTO user(id, name) VALUES (:id, :name)');
@@ -79,22 +82,20 @@ class DevPdoStatementTest extends TestCase
         $this->sth->bindValue(':id', 80, PDO::PARAM_INT);
         $this->sth->execute();
         $this->sth->fetchAll(PDO::FETCH_ASSOC);
-        $this->logger;
         $expected = 'SIMPLE';
-        $this->assertSame($this->logger->explain[0]['select_type'], $expected);
+        $this->assertSame($expected, $this->logger->explain[0]['select_type']);
 
         return $this->logger->warnings;
     }
 
     /**
-     * @param array $warnings
+     * @param array<mixed> $warnings
      *
      * @depends testExplain
      */
     public function testWarnings(array $warnings)
     {
         $this->markTestIncomplete('This test has not been implemented yet.');
-
         $this->assertNotSame([], $warnings[0]);
         $this->assertArrayHasKey('Level', $warnings[0]);
         $this->assertArrayHasKey('Code', $warnings[0]);

@@ -15,19 +15,24 @@ class Logger implements LoggerInterface
     /**
      * EXPLAIN
      *
-     * @var array
+     * @var array<mixed>
      */
-    public $explain;
+    public $explain = [];
 
     /**
      * SHOW WARNINGS
      *
-     * @var array
+     * @var array<mixed>
      */
-    public $warnings;
+    public $warnings = [];
 
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
+     *
+     * @param string                           $query
+     * @param string                           $time
+     * @param array<int, array<string, mixed>> $explain
+     * @param array<int, array<string, mixed>> $warnings
      */
     public function logQuery($query, $time, array $explain, array $warnings)
     {
