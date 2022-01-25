@@ -8,8 +8,6 @@ use function error_log;
 use function json_encode;
 use function sprintf;
 
-use const JSON_PRETTY_PRINT;
-
 class Logger implements LoggerInterface
 {
     /**
@@ -38,7 +36,8 @@ class Logger implements LoggerInterface
     {
         $this->explain = $explain;
         $this->warnings = $warnings;
-        error_log(sprintf("time:%.6f SQL: %s explain: %s",
+        error_log(sprintf(
+            'time:%.6f SQL: %s explain: %s',
             (float) $time,
             $query,
             json_encode($explain)
