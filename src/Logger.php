@@ -1,12 +1,14 @@
 <?php
-/**
- * This file is part of the Koriym.DevPdoStatement
- *
- * @license http://opensource.org/licenses/MIT MIT
- */
+
 declare(strict_types=1);
 
 namespace Koriym\DevPdoStatement;
+
+use function error_log;
+use function json_encode;
+use function sprintf;
+
+use const JSON_PRETTY_PRINT;
 
 class Logger implements LoggerInterface
 {
@@ -33,9 +35,11 @@ class Logger implements LoggerInterface
         error_log($log);
         $this->explain = $explain;
         $this->warnings = $warnings;
-        if ($warnings) {
-            error_log('warnings:' . (string) json_encode($warnings, JSON_PRETTY_PRINT));
-            error_log('explain :' . (string) json_encode($explain, JSON_PRETTY_PRINT));
+        if (! $warnings) {
+            return;
         }
+
+        error_log('warnings:' . (string) json_encode($warnings, JSON_PRETTY_PRINT));
+        error_log('explain :' . (string) json_encode($explain, JSON_PRETTY_PRINT));
     }
 }

@@ -1,16 +1,23 @@
 <?php
-/**
- * This file is part of the Koriym.DevPdoStatement
- *
- * @license http://opensource.org/licenses/MIT MIT
- */
+
 declare(strict_types=1);
 
 namespace Koriym\DevPdoStatement;
 
+use PDO;
+use PDOException;
+use PdoStatement;
 use ReturnTypeWillChange;
 
-final class DevPdoStatement extends \PdoStatement
+use function implode;
+use function is_array;
+use function is_null;
+use function is_string;
+use function microtime;
+use function preg_replace;
+use function sprintf;
+
+final class DevPdoStatement extends PdoStatement
 {
     /**
      * Bound parameters
@@ -26,17 +33,13 @@ final class DevPdoStatement extends \PdoStatement
      */
     public $interpolateQuery;
 
-    /**
-     * @var \PDO
-     */
+    /** @var PDO */
     private $pdo;
 
-    /**
-     * @var LoggerInterface
-     */
+    /** @var LoggerInterface */
     private $logger;
 
-    protected function __construct(\PDO $db, LoggerInterface $logger)
+    protected function __construct(PDO $db, LoggerInterface $logger)
     {
         $this->pdo = $db;
         $this->logger = $logger;
@@ -46,7 +49,7 @@ final class DevPdoStatement extends \PdoStatement
      * {@inheritdoc}
      */
     #[ReturnTypeWillChange]
-    public function bindValue($parameter, $value, $dataType = \PDO::PARAM_STR)
+    public function bindValue($parameter, $value, $dataType = PDO::PARAM_STR)
     {
         $this->params[$parameter] = $value;
         parent::bindValue($parameter, $value, $dataType);
@@ -56,7 +59,7 @@ final class DevPdoStatement extends \PdoStatement
      * {@inheritdoc}
      */
     #[ReturnTypeWillChange]
-    public function bindParam($paramno, &$param, $dataType = \PDO::PARAM_STR, $length = null, $driverOptions = null)
+    public function bindParam($paramno, &$param, $dataType = PDO::PARAM_STR, $length = null, $driverOptions = null)
     {
         $this->params[$paramno] = &$param;
         parent::bindParam($paramno, $param, $dataType, (int) $length, $driverOptions);
@@ -72,7 +75,7 @@ final class DevPdoStatement extends \PdoStatement
         parent::execute($bountInputParameters);
         $time = microtime(true) - $start;
         $this->interpolateQuery = $this->interpolateQuery($this->queryString, $this->params);
-        list($explain, $warnings) = $this->getExplain($this->interpolateQuery);
+        [$explain, $warnings] = $this->getExplain($this->interpolateQuery);
         $this->logger->logQuery($this->interpolateQuery, $time, $explain, $warnings);
     }
 
@@ -93,19 +96,24 @@ final class DevPdoStatement extends \PdoStatement
     {
         $keys = [];
         $values = $params;
-        # build a regular expression for each parameter
+        // build a regular expression for each parameter
         foreach ($params as $key => $value) {
             $keys[] = is_string($key) ? '/' . $key . '/' : '/[?]/';
             if (is_string($value)) {
                 $values[$key] = "'" . $value . "'";
             }
+
             if (is_array($value)) {
                 $values[$key] = "'" . implode("','", $value) . "'";
             }
-            if (is_null($value)) {
-                $values[$key] = 'null';
+
+            if (! is_null($value)) {
+                continue;
             }
+
+            $values[$key] = 'null';
         }
+
         $query = preg_replace($keys, $values, $query, 1);
 
         return $query;
@@ -121,10 +129,10 @@ final class DevPdoStatement extends \PdoStatement
         $explainSql = sprintf('EXPLAIN %s', $interpolateQuery);
         try {
             $sth = $this->pdo->query($explainSql);
-            $explain = $sth->fetchAll(\PDO::FETCH_ASSOC);
+            $explain = $sth->fetchAll(PDO::FETCH_ASSOC);
             $sth = $this->pdo->query('SHOW WARNINGS');
-            $sth instanceof \PDOStatement ? $warnings = $sth->fetchAll(\PDO::FETCH_ASSOC) : $warnings = [];
-        } catch (\PDOException $e) {
+            $sth instanceof \PDOStatement ? $warnings = $sth->fetchAll(PDO::FETCH_ASSOC) : $warnings = [];
+        } catch (PDOException $e) {
             return [[], []];
         }
 
