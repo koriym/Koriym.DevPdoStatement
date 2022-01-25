@@ -8,6 +8,8 @@ declare(strict_types=1);
 
 namespace Koriym\DevPdoStatement;
 
+use ReturnTypeWillChange;
+
 final class DevPdoStatement extends \PdoStatement
 {
     /**
@@ -43,6 +45,7 @@ final class DevPdoStatement extends \PdoStatement
     /**
      * {@inheritdoc}
      */
+    #[ReturnTypeWillChange]
     public function bindValue($parameter, $value, $dataType = \PDO::PARAM_STR)
     {
         $this->params[$parameter] = $value;
@@ -52,6 +55,7 @@ final class DevPdoStatement extends \PdoStatement
     /**
      * {@inheritdoc}
      */
+    #[ReturnTypeWillChange]
     public function bindParam($paramno, &$param, $dataType = \PDO::PARAM_STR, $length = null, $driverOptions = null)
     {
         $this->params[$paramno] = &$param;
@@ -61,6 +65,7 @@ final class DevPdoStatement extends \PdoStatement
     /**
      * {@inheritdoc}
      */
+    #[ReturnTypeWillChange]
     public function execute($bountInputParameters = null)
     {
         $start = microtime(true);
