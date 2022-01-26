@@ -7,8 +7,9 @@ namespace Koriym\DevPdoStatement;
 use function error_log;
 use function json_encode;
 use function sprintf;
+use const JSON_PRETTY_PRINT;
 
-class Logger implements LoggerInterface
+final class Logger implements LoggerInterface
 {
     /**
      * EXPLAIN
@@ -27,20 +28,25 @@ class Logger implements LoggerInterface
     /**
      * {@inheritDoc}
      *
-     * @param string                           $query
-     * @param string                           $time
      * @param array<int, array<string, mixed>> $explain
      * @param array<int, array<string, mixed>> $warnings
      */
-    public function logQuery($query, $time, array $explain, array $warnings)
+    public function logQuery(string $query, string $time, array $explain, array $warnings): void
     {
         $this->explain = $explain;
         $this->warnings = $warnings;
+        if (! $this->warnings) {
+            return;
+        }
+        $level = $this->warnings[0]['Level'] ?? 'n/a';
+        $code = $this->warnings[0]['Code'] ?? 'n/a';
         error_log(sprintf(
-            'time:%.6f SQL: %s explain: %s',
+            'level:%s code:%s time:%.6f message:"%s" explain:%s',
+            $level,
+            (string) $code,
             (float) $time,
             $query,
-            json_encode($explain)
+            json_encode($explain, JSON_PRETTY_PRINT)
         ));
     }
 }

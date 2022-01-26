@@ -65,7 +65,7 @@ class MyPsr3Logger implements LoggerInterface
     /**
      * {@inheritdoc}
      */
-    public function logQuery($query, $time, array $explain, array $warnings)
+    public function logQuery(string $query, string $time, array $explain, array $warnings): void
     {
         // log or throw exception in your custom condition.
     }

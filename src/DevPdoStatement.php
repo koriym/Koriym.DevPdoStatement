@@ -154,7 +154,7 @@ final class DevPdoStatement extends PdoStatement
                 return [[], []];
             }
 
-            $warnings = $sth->fetchAll(PDO::FETCH_ASSOC);
+            $warnings = $warningSth->fetchAll(PDO::FETCH_ASSOC);
         } catch (PDOException $e) {
             return [[], []];
         }

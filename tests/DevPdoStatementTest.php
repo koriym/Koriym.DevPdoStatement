@@ -78,10 +78,11 @@ class DevPdoStatementTest extends TestCase
             $sth->execute();
         }
 
-        $this->sth = $this->pdo->prepare('select id, name from user where id > :id');
+        $this->sth = $this->pdo->prepare('select id, name from user where id < :id and name = :name');
         $this->sth->bindValue(':id', 80, PDO::PARAM_INT);
+        $this->sth->bindValue(':name', 'koriym50', PDO::PARAM_STR);
         $this->sth->execute();
-        $this->sth->fetchAll(PDO::FETCH_ASSOC);
+        $a = $this->sth->fetchAll(PDO::FETCH_ASSOC);
         $expected = 'SIMPLE';
         $this->assertSame($expected, $this->logger->explain[0]['select_type']);
 
@@ -95,7 +96,6 @@ class DevPdoStatementTest extends TestCase
      */
     public function testWarnings(array $warnings)
     {
-        $this->markTestIncomplete('This test has not been implemented yet.');
         $this->assertNotSame([], $warnings[0]);
         $this->assertArrayHasKey('Level', $warnings[0]);
         $this->assertArrayHasKey('Code', $warnings[0]);

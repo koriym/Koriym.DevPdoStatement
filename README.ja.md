@@ -4,6 +4,8 @@
 
 [[English](README.md)]
 
+遅い実行速度や適切なインデックスが貼られていないSQL実行をどのように検知していますか？
+
 [koriym/dev-pdo-statement](https://packagist.org/packages/koriym/dev-pdo-statement) はSQLクエリーやデータベース運用を改善するために以下の情報を記録します。
 
  * クエリー実行時間 
@@ -13,8 +15,7 @@
  
 ## インストール
 
-
-`$pdo`に`DevPdoStatement`クラスをセットして[PDO](http://php.net/manual/ja/intro.pdo.php)のプリペアドステートメントクラス`PDOStatement`を置き換えログ機能を有効にします。
+`$pdo`の属性をセットして [PDO](http://php.net/manual/ja/intro.pdo.php) のプリペアドステートメントクラス`PDOStatement` を`DevPdoStatement`に置き換えます。
 
 ```php
 use Koriym\DevPdoStatement\DevPdoStatement;
@@ -23,7 +24,7 @@ use Koriym\DevPdoStatement\Logger;
 $pdo->setAttribute(\PDO::ATTR_STATEMENT_CLASS, [DevPdoStatement::class, [$pdo, new Logger]]);
 ```
 
-これ以降プリペアードステートメントクエリー行うと以下のようにログされます。
+これ以降プリペアードステートメントのクエリー行うと以下のようにログされます。
 
 ```
 time:0.00035190582275391 query: INSERT INTO user(id, name) VALUES (99, 'koriym99')
