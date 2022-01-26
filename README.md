@@ -4,12 +4,14 @@
 
 [[Japanese](README.ja.md)]
 
-[koriym/dev-pdo-statement](https://packagist.org/packages/koriym/dev-pdo-statement) log following information to help your sql inspection.
+How do you detect slow SQL execution or query execution that is not properly indexed?
 
- * Query excution time.
- * Final SQL query with parameter values interpolated into it from prepared statement.
- * The result of `EXPLAIN` query.
- * The result of `SHOW WARNINGS` query.
+[koriym/dev-pdo-statement](https://packagist.org/packages/koriym/dev-pdo-statement) records the following information to improve SQL queries and database operations.
+
+ * Query execution time.
+ * SQL synthesizing prepared statements and bound values
+ * Execution result of `EXPLAIN`
+ * Execution result of `SHOW WARNINGS`.
 
 ## Install
 

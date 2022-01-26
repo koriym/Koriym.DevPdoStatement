@@ -4,14 +4,14 @@
 
 [[English](README.md)]
 
-遅い実行速度や適切なインデックスが貼られていないSQL実行をどのように検知していますか？
+実行速度の遅いSQLや適切なインデックスが貼られていないクエリー実行をどのように検知していますか？
 
 [koriym/dev-pdo-statement](https://packagist.org/packages/koriym/dev-pdo-statement) はSQLクエリーやデータベース運用を改善するために以下の情報を記録します。
 
  * クエリー実行時間 
  * プリペアードステートメントとバインドされた値を合成したSQL
- * `EXPLAIN`の結果
- * `SHOW WARNINGS`の結果
+ * `EXPLAIN`の実行結果
+ * `SHOW WARNINGS`の実行結果
  
 ## インストール
 
