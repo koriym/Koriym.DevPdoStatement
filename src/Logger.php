@@ -28,6 +28,11 @@ final class Logger implements LoggerInterface
     /**
      * {@inheritDoc}
      *
+     * About $warnings - PDO::ERRMODE_EXCEPTION does not output warnings
+     * In PDO::ERRMODE_WARNING and PDO::ERRMODE_EXCEPTION, the process ends with one warning.
+     * So it seems rare that $warnings has more than two arrays.
+     * It is also unclear at what point $explain becomes more than one array.
+     *
      * @param array<int, array<string, mixed>> $explain
      * @param array<int, array<string, mixed>> $warnings
      */
@@ -41,7 +46,7 @@ final class Logger implements LoggerInterface
         $level = $this->warnings[0]['Level'] ?? 'n/a';
         $code = $this->warnings[0]['Code'] ?? 'n/a';
         error_log(sprintf(
-            'level:%s code:%s time:%.6f message:"%s" explain:%s',
+            'DB Warning: level:%s code:%s time:%.6f message:"%s" explain:%s',
             $level,
             (string) $code,
             (float) $time,
