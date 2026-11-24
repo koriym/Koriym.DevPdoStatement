@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Koriym\DevPdoStatement;
 
+use Override;
+
 use function error_log;
 use function json_encode;
 use function sprintf;
@@ -32,6 +34,7 @@ class Logger implements LoggerInterface
      * @param array<int, array<string, mixed>> $explain
      * @param array<int, array<string, mixed>> $warnings
      */
+    #[Override]
     public function logQuery($query, $time, array $explain, array $warnings)
     {
         $this->explain = $explain;
@@ -40,7 +43,7 @@ class Logger implements LoggerInterface
             'time:%.6f SQL: %s explain: %s',
             (float) $time,
             $query,
-            json_encode($explain)
+            (string) json_encode($explain),
         ));
     }
 }

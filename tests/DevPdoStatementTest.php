@@ -5,23 +5,25 @@ declare(strict_types=1);
 namespace Koriym\DevPdoStatement;
 
 use PDO;
+use PDOException;
+use PHPUnit\Framework\Attributes\Depends;
 use PHPUnit\Framework\TestCase;
 
 class DevPdoStatementTest extends TestCase
 {
-    /** @var PDO */
-    private $pdo;
-
-    /** @var Logger */
-    private $logger;
-
-    /** @var DevPdoStatement */
-    private $sth;
+    private PDO $pdo;
+    private Logger $logger;
 
     protected function setUp(): void
     {
         parent::setUp();
-        $this->pdo = new PDO('mysql:host=127.0.0.1', 'root', '');
+
+        try {
+            $this->pdo = new PDO('mysql:host=127.0.0.1', 'root', '');
+        } catch (PDOException $e) {
+            $this->markTestSkipped('MySQL is not available: ' . $e->getMessage());
+        }
+
         $this->logger = new Logger();
         $this->pdo->exec('CREATE DATABASE IF NOT EXISTS tmp;');
         $this->pdo->exec('USE tmp;');
@@ -33,28 +35,41 @@ class DevPdoStatementTest extends TestCase
     protected function tearDown(): void
     {
         parent::tearDown();
+
+        if (! isset($this->pdo)) {
+            return;
+        }
+
         $this->pdo->exec('DROP DATABASE tmp;');
     }
 
-    public function testInterpolateQuery()
+    private function prepare(string $query): DevPdoStatement
+    {
+        $sth = $this->pdo->prepare($query);
+        $this->assertInstanceOf(DevPdoStatement::class, $sth);
+
+        return $sth;
+    }
+
+    public function testInterpolateQuery(): void
     {
         $this->pdo->setAttribute(PDO::ATTR_STATEMENT_CLASS, [DevPdoStatement::class, [$this->pdo, $this->logger]]);
         $sth = $this->pdo->prepare('INSERT INTO user(id, name) VALUES (:id, :name)');
-        $this->assertInstanceOf('\Koriym\DevPdoStatement\DevPdoStatement', $sth);
+        $this->assertInstanceOf(DevPdoStatement::class, $sth);
     }
 
-    public function testBindValue()
+    public function testBindValue(): void
     {
-        $sth = $this->pdo->prepare('INSERT INTO user(id, name) VALUES (:id, :name)');
+        $sth = $this->prepare('INSERT INTO user(id, name) VALUES (:id, :name)');
         $sth->bindValue(':id', 1, PDO::PARAM_INT);
         $sth->bindValue(':name', 'koriym', PDO::PARAM_STR);
         $sth->execute();
         $this->assertSame("INSERT INTO user(id, name) VALUES (1, 'koriym')", $sth->interpolateQuery);
     }
 
-    public function testBindParam()
+    public function testBindParam(): void
     {
-        $sth = $this->pdo->prepare('INSERT INTO user(id, name) VALUES (:id, :name)');
+        $sth = $this->prepare('INSERT INTO user(id, name) VALUES (:id, :name)');
         $id = $name  = '';
         $sth->bindParam(':id', $id, PDO::PARAM_STR);
         $sth->bindParam(':name', $name, PDO::PARAM_STR);
@@ -64,12 +79,10 @@ class DevPdoStatementTest extends TestCase
         $this->assertSame("INSERT INTO user(id, name) VALUES (1, 'koriym')", $sth->interpolateQuery);
     }
 
-    /**
-     * @return array<mixed>
-     */
-    public function testExplain()
+    /** @return array<mixed> */
+    public function testExplain(): array
     {
-        $sth = $this->pdo->prepare('INSERT INTO user(id, name) VALUES (:id, :name)');
+        $sth = $this->prepare('INSERT INTO user(id, name) VALUES (:id, :name)');
         $sth->bindParam(':id', $id, PDO::PARAM_INT);
         $sth->bindParam(':name', $name, PDO::PARAM_STR);
         for ($i = 0; $i < 100; $i++) {
@@ -78,22 +91,19 @@ class DevPdoStatementTest extends TestCase
             $sth->execute();
         }
 
-        $this->sth = $this->pdo->prepare('select id, name from user where id > :id');
-        $this->sth->bindValue(':id', 80, PDO::PARAM_INT);
-        $this->sth->execute();
-        $this->sth->fetchAll(PDO::FETCH_ASSOC);
+        $select = $this->prepare('select id, name from user where id > :id');
+        $select->bindValue(':id', 80, PDO::PARAM_INT);
+        $select->execute();
+        $select->fetchAll(PDO::FETCH_ASSOC);
         $expected = 'SIMPLE';
         $this->assertSame($expected, $this->logger->explain[0]['select_type']);
 
         return $this->logger->warnings;
     }
 
-    /**
-     * @param array<mixed> $warnings
-     *
-     * @depends testExplain
-     */
-    public function testWarnings(array $warnings)
+    /** @param array<mixed> $warnings */
+    #[Depends('testExplain')]
+    public function testWarnings(array $warnings): void
     {
         $this->markTestIncomplete('This test has not been implemented yet.');
         $this->assertNotSame([], $warnings[0]);

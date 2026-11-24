@@ -4,55 +4,54 @@ declare(strict_types=1);
 
 namespace Koriym\DevPdoStatement;
 
+use Override;
 use PDO;
 use PDOException;
-use PdoStatement;
-use ReturnTypeWillChange;
+use PDOStatement;
+use Stringable;
 
+use function array_map;
+use function get_debug_type;
+use function gettype;
 use function implode;
 use function is_array;
+use function is_resource;
+use function is_scalar;
 use function is_string;
 use function microtime;
 use function preg_replace;
 use function sprintf;
 
-final class DevPdoStatement extends PdoStatement
+/** @inherits PDOStatement<mixed> PHPStan does not treat PDOStatement as generic; Psalm does. */
+final class DevPdoStatement extends PDOStatement
 {
     /**
      * Bound parameters
      *
      * @var array<mixed>
      */
-    private $params = [];
+    private array $params = [];
 
     /**
      * Interpolate Query
-     *
-     * @var string
      */
-    public $interpolateQuery = '';
+    public string $interpolateQuery = '';
 
-    /** @var PDO */
-    private $pdo;
-
-    /** @var LoggerInterface */
-    private $logger;
-
-    protected function __construct(PDO $db, LoggerInterface $logger)
-    {
-        $this->pdo = $db;
-        $this->logger = $logger;
+    protected function __construct(
+        private readonly PDO $db,
+        private readonly LoggerInterface $logger,
+    ) {
     }
 
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
      *
      * @param int|string $parameter
-     * @param int|string $value
+     * @param mixed      $value
      * @param int        $dataType
      */
-    #[ReturnTypeWillChange]
-    public function bindValue($parameter, $value, $dataType = PDO::PARAM_STR)
+    #[Override]
+    public function bindValue($parameter, $value, $dataType = PDO::PARAM_STR): bool
     {
         $this->params[$parameter] = $value;
 
@@ -65,11 +64,11 @@ final class DevPdoStatement extends PdoStatement
      * @param string|int $paramno
      * @param mixed      $param
      * @param int        $dataType
-     * @param int        $length
+     * @param int|null   $length
      * @param mixed      $driverOptions
      */
-    #[ReturnTypeWillChange]
-    public function bindParam($paramno, &$param, $dataType = PDO::PARAM_STR, $length = null, $driverOptions = null)
+    #[Override]
+    public function bindParam($paramno, &$param, $dataType = PDO::PARAM_STR, $length = null, $driverOptions = null): bool
     {
         $this->params[$paramno] = &$param;
 
@@ -77,12 +76,12 @@ final class DevPdoStatement extends PdoStatement
     }
 
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
      *
-     * @param array<mixed> $bountInputParameters
+     * @param array<mixed>|null $bountInputParameters
      */
-    #[ReturnTypeWillChange]
-    public function execute($bountInputParameters = null)
+    #[Override]
+    public function execute($bountInputParameters = null): bool
     {
         $start = microtime(true);
         $result = parent::execute($bountInputParameters);
@@ -105,64 +104,61 @@ final class DevPdoStatement extends PdoStatement
      * @return string The interpolated query
      *
      * @link http://stackoverflow.com/a/8403150
-     * thanks
      */
-    private function interpolateQuery($query, $params)
+    private function interpolateQuery(string $query, array $params): string
     {
         $keys = [];
-        $values = $params;
+        $values = [];
         // build a regular expression for each parameter
         foreach ($params as $key => $value) {
             $keys[] = is_string($key) ? '/' . $key . '/' : '/[?]/';
-            if (is_string($value)) {
-                $values[$key] = "'" . $value . "'";
-            }
-
-            if (is_array($value)) {
-                $values[$key] = "'" . implode("','", $value) . "'";
-            }
-
-            if ($value !== null) {
-                continue;
-            }
-
-            $values[$key] = 'null';
+            $values[$key] = match (true) {
+                is_string($value) => "'" . $value . "'",
+                is_array($value) => "'" . implode("','", array_map($this->toText(...), $value)) . "'",
+                $value === null => 'null',
+                default => $this->toText($value),
+            };
         }
 
-        $query = preg_replace($keys, $values, $query, 1);
-
-        return (string) $query;
+        return (string) preg_replace($keys, $values, $query, 1);
     }
 
     /**
-     * @param string $interpolateQuery
-     *
-     * @return array{0:array<int, array<string, mixed>>, 1:array<int, array<string, mixed>>}
+     * PHP's string conversion; a nested array becomes 'Array' and an object without
+     * __toString() is shown by its class name.
      */
-    private function getExplain($interpolateQuery)
+    private function toText(mixed $value): string
+    {
+        return match (true) {
+            is_scalar($value), $value === null, $value instanceof Stringable, is_resource($value) => (string) $value,
+            gettype($value) === 'resource (closed)' => 'Resource id #' . (int) $value,
+            is_array($value) => 'Array',
+            default => get_debug_type($value),
+        };
+    }
+
+    /** @return array{0: array<int, array<string, mixed>>, 1: array<int, array<string, mixed>>} */
+    private function getExplain(string $interpolateQuery): array
     {
         $explainSql = sprintf('EXPLAIN %s', $interpolateQuery);
         try {
-            $sth = $this->pdo->query($explainSql);
+            $sth = $this->db->query($explainSql);
             if ($sth === false) {
                 return [[], []];
             }
 
+            /** @var array<int, array<string, mixed>> $explain */
             $explain = $sth->fetchAll(PDO::FETCH_ASSOC);
-            $warningSth = $this->pdo->query('SHOW WARNINGS');
+            $warningSth = $this->db->query('SHOW WARNINGS');
             if ($warningSth === false) {
                 return [[], []];
             }
 
+            /** @var array<int, array<string, mixed>> $warnings */
             $warnings = $sth->fetchAll(PDO::FETCH_ASSOC);
-        } catch (PDOException $e) {
+        } catch (PDOException) {
             return [[], []];
         }
-
-        /** @var array<int, array<string, mixed>> $explain */
-        $explain = $explain ?: [];
-        /** @var array<int, array<string, mixed>> $warnings */
-        $warnings = $warnings ?: [];
 
         return [$explain, $warnings];
     }
