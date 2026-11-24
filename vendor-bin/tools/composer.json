@@ -1,0 +1,14 @@
+{
+    "require-dev": {
+        "doctrine/coding-standard": "^14.0",
+        "phpmd/phpmd": "^2.15",
+        "phpstan/phpstan": "^2.1",
+        "squizlabs/php_codesniffer": "^4.0",
+        "vimeo/psalm": "^6.13"
+    },
+    "config": {
+        "allow-plugins": {
+            "dealerdirect/phpcodesniffer-composer-installer": true
+        }
+    }
+}

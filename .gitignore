@@ -10,5 +10,6 @@ cache.properties
 build
 vendor/
 /composer.lock
+/vendor-bin/**/composer.lock
 /.phpcs-cache
-/.phpunit.result.cache
+/.phpunit.cache

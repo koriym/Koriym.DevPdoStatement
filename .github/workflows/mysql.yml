@@ -1,0 +1,47 @@
+# The shared Continuous Integration workflow has no database service, so the MySQL tests
+# (EXPLAIN / SHOW WARNINGS) skip there and run here instead.
+name: MySQL
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  phpunit-mysql:
+    name: PHPUnit with MySQL - PHP ${{ matrix.php-version }}
+    runs-on: ubuntu-latest
+    services:
+      mysql:
+        image: mysql:8.0
+        ports:
+          - 3306:3306
+        env:
+          MYSQL_ALLOW_EMPTY_PASSWORD: yes
+        options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=5
+    strategy:
+      fail-fast: false
+      matrix:
+        php-version:
+          - '8.2'
+          - '8.6'
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup PHP ${{ matrix.php-version }}
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php-version }}
+          coverage: none
+          extensions: pdo, pdo_mysql, pdo_sqlite
+          ini-values: zend.assertions=1
+
+      - name: Install dependencies
+        run: composer update --no-interaction --no-progress --prefer-dist --no-plugins
+
+      - name: Run test suite
+        run: vendor/bin/phpunit --fail-on-skipped
