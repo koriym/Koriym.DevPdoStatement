@@ -107,6 +107,17 @@ class DevPdoStatementSqliteTest extends TestCase
         $this->assertSame('INSERT INTO user(id, name) VALUES (:id, :name)', $sth->interpolateQuery);
     }
 
+    public function testAcceptsPdoStatementNamedArguments(): void
+    {
+        $sth = $this->prepare('INSERT INTO user(id, name) VALUES (:id, :name)');
+        $name = 'aop';
+        $sth->bindValue(param: ':id', value: 6, type: PDO::PARAM_INT);
+        $sth->bindParam(param: ':name', var: $name, type: PDO::PARAM_STR, maxLength: 0, driverOptions: null);
+        $sth->execute(params: null);
+
+        $this->assertSame("INSERT INTO user(id, name) VALUES (6, 'aop')", $sth->interpolateQuery);
+    }
+
     public function testNonStringValuesUseStringConversion(): void
     {
         $stream = fopen('php://memory', 'r');

@@ -46,45 +46,45 @@ final class DevPdoStatement extends PDOStatement
     /**
      * {@inheritDoc}
      *
-     * @param int|string $parameter
+     * @param int|string $param
      * @param mixed      $value
-     * @param int        $dataType
+     * @param int        $type
      */
     #[Override]
-    public function bindValue($parameter, $value, $dataType = PDO::PARAM_STR): bool
+    public function bindValue($param, $value, $type = PDO::PARAM_STR): bool
     {
-        $this->params[$parameter] = $value;
+        $this->params[$param] = $value;
 
-        return parent::bindValue($parameter, $value, $dataType);
+        return parent::bindValue($param, $value, $type);
     }
 
     /**
      * {@inheritDoc}
      *
-     * @param string|int $paramno
-     * @param mixed      $param
-     * @param int        $dataType
-     * @param int|null   $length
+     * @param string|int $param
+     * @param mixed      $var
+     * @param int        $type
+     * @param int|null   $maxLength
      * @param mixed      $driverOptions
      */
     #[Override]
-    public function bindParam($paramno, &$param, $dataType = PDO::PARAM_STR, $length = null, $driverOptions = null): bool
+    public function bindParam($param, &$var, $type = PDO::PARAM_STR, $maxLength = null, $driverOptions = null): bool
     {
-        $this->params[$paramno] = &$param;
+        $this->params[$param] = &$var;
 
-        return parent::bindParam($paramno, $param, $dataType, (int) $length, $driverOptions);
+        return parent::bindParam($param, $var, $type, (int) $maxLength, $driverOptions);
     }
 
     /**
      * {@inheritDoc}
      *
-     * @param array<mixed>|null $bountInputParameters
+     * @param array<mixed>|null $params
      */
     #[Override]
-    public function execute($bountInputParameters = null): bool
+    public function execute($params = null): bool
     {
         $start = microtime(true);
-        $result = parent::execute($bountInputParameters);
+        $result = parent::execute($params);
         $time = microtime(true) - $start;
         $this->interpolateQuery = $this->interpolateQuery($this->queryString, $this->params);
         [$explain, $warnings] = $this->getExplain($this->interpolateQuery);
